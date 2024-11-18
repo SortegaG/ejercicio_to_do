@@ -1,7 +1,8 @@
 import React from "react";
+import ToDoList from './ToDoList'
 
 const Main = () => {
-  return <div>Main</div>;
+  return <div><ToDoList/></div>;
 };
 
 export default Main;
