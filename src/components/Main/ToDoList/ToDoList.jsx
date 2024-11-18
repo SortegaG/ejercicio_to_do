@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import ToDoItem from './ToDoItem'
 import data from "./data";
 import { v4 as uuidv4 } from 'uuid';
+import './ToDoList.css'
 
 
 const ToDoList = () => {
 
 
-const [items, setItems] = useState([])
+const [items, setItems] = useState(data)
 
 // Estado del formulario  values es el estado y setValues es el metodo que modifica el estado
 const [values, setValues] = useState({  // Values es el estado del formulario
@@ -36,8 +37,10 @@ const handleSubmit = (e) => {
   // addItem(new_item)
 
   // 2. Leyendo un estado de valores actuales
+  setValues({task: ''});
   console.log(values)
   addItem(values)
+  //console.log(values.task)
 }
 
 const renderItems = () => {
@@ -50,7 +53,7 @@ const removeAllItem = () => {
   setItems([]) // actualiza el estado items
 }
 const resetItems = () => {
-  setItems(christmasProducts) // cargar con datos iniciales de nuevo
+  setItems(data) // cargar con datos iniciales de nuevo
 }
 
 const removeItem = (i) => {
@@ -61,20 +64,17 @@ const removeItem = (i) => {
 
 renderItems();
   return <div>
-    <form onSubmit={handleSubmit}>
+    <form class='task-container' onSubmit={handleSubmit}>
 
-<label htmlFor="name">Tarea</label>
-<input type="text" name="task" onChange={handleChange} /> <br />
+      <label htmlFor="name">Tarea</label>
+      <input type="text" name="task" value={values.task} onChange={handleChange} /> <br />
+      <button type="submit">ADD</button>
 
+      </form>
 
-{values.task
-? <button type="submit">Crear tarea</button>
-: <p>No puedes pasar</p>}
-</form>
-
-<button onClick={removeAllItem}>Borrar todo</button>
-<button onClick={resetItems}>Recargar todo</button>
-<button onClick={()=>removeItem(0)}>Borrar primero</button>
+      <button onClick={removeAllItem}>Borrar todo</button>
+      <button onClick={resetItems}>Recargar todo</button>
+      <button onClick={()=>removeItem(0)}>Borrar primero</button>
 
 <h1>Lista de tareas</h1> 
   {renderItems()}
