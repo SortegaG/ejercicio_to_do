@@ -2,21 +2,23 @@ import React, { useState, useEffect } from "react";
 import ToDoItem from './ToDoItem';
 import data from "./data";
 import { v4 as uuidv4 } from 'uuid';
+import FormEdit from "./FormEdit";
 
 
 const ToDoList = () => {
-  const [items, setItems] = useState(data);
+  const [items, setItems] = useState([]);
   const [values, setValues] = useState({ task: '' });
   const [isLoading, setIsLoading] = useState(true);
-  const [tasks, setTasks] = useState([]);
   const [timeoutId, setTimeoutId] = useState(null);
   const [showMessage, setShowMessage] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(false);
+
 
 
   useEffect(() => {
     console.log("useEffect ejecutado: cargando datos...");
     setTimeout(() => {
-      setTasks(data); 
+      setItems(data);
       setIsLoading(false);
       console.log("Datos cargados:", data);
     }, 5000);
@@ -40,6 +42,7 @@ const ToDoList = () => {
     setTimeoutId(id); // Guardar nuevo temporizador
   };
 
+  //e es Evento
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -57,9 +60,9 @@ const ToDoList = () => {
       setShowMessage(false);
     }, 5000);
 
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
+    // if (timeoutId) {
+    //   clearTimeout(timeoutId);
+    // }
   };
 
   const renderItems = () => {
@@ -74,15 +77,15 @@ const ToDoList = () => {
   };
 
   const addItem = (new_item) => {
-    setItems([...items, new_item]); 
+    setItems([...items, new_item]);
   };
 
   const removeAllItem = () => {
-    setItems([]); 
+    setItems([]);
   };
 
   const resetItems = () => {
-    setItems(data); 
+    setItems(data);
   };
 
   const removeItem = (i) => {
@@ -91,30 +94,74 @@ const ToDoList = () => {
     setItems(remainingItems);
   };
 
-  const editItem = (i) => {
-    const remainingItems = items.filter((_, index) => index !== i);
-    alert(`Item borrado: ${items[i]?.title || 'desconocido'}`);
-    setItems(remainingItems);
+  const editItem = (index) => {
+    setSelectedItem({ ...items[index], "index": index }); // Guardamos el ítem y su índice
+  };
+
+  const updateItem = (objetoItem) => {
+    // 1. Crear una copia del array de items
+    const dataOriginal = [...items];
+
+    console.log("objetoItem.index===", objetoItem.index)
+    // 2. Seleccionar el elemento que se quiere actualizar usando su índice
+    const indexToUpdate = objetoItem.index;
+
+    /* dataOriginal
+    [
+      { "title": "CList Item 1", "description": "Descripción del item 1"},
+      { "title": "CList Item 2", "description": "Descripción del item 2"},
+      { "title": "CList Item 3", "description": "Descripción del item 3"}
+    ]
+
+    objetoItem
+    [
+      { "title": "CList Item 1aaa", "description": "Descripción del item 1", "index":0},
+      { "title": "CList Item 2", "description": "Descripción del item 2", "index":1},
+      { "title": "CList Item 3", "description": "Descripción del item 3", "index":2}
+    ] */
+
+    // Combinar el ítem actual con los nuevos valores
+    dataOriginal[indexToUpdate] = {
+      ...dataOriginal[indexToUpdate], // Mantener los valores originales del ítem
+      ...objetoItem,                // Sobrescribir con los valores actualizados
+    };
+
+    // Actualizar el estado con el array modificado
+    setItems(dataOriginal);
+
+    // Limpiar el ítem seleccionado (finalizar edición)
+    setSelectedItem(false);
   };
 
   return (
     <div>
-      <h1>Lista de tareas</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="name">Tarea</label>
-        <input type="text" name="task" value={values.task} onChange={handleChange}/><br/>
+      {
+        selectedItem
+          ?
+          <>
+            <h3>Modo: Edicción</h3>
+            <FormEdit item={selectedItem} onSubmittt={updateItem} />
+          </>
+          :
+          <>
+            <h1>Lista de tareas</h1>
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="name">Tarea</label>
+              <input type="text" name="task" value={values.task} onChange={handleChange} /><br />
 
-        {values.task ? (
-          <button type="submit">ADD</button>
-        ) : (
-          <p>Escribe algo para enviar</p>
-        )}
-      </form>
-      {showMessage && <p style={{ color: 'green' }}>¡Tarea añadida!</p>}
-      <button onClick={removeAllItem}>Borrar todo</button>
-      <button onClick={resetItems}>Recargar todo</button>
-      <button onClick={() => removeItem(0)}>Borrar primero</button>
-      {renderItems()}
+              {values.task ? (
+                <button type="submit">ADD</button>
+              ) : (
+                <p>Escribe algo para enviar</p>
+              )}
+            </form>
+            {showMessage && <p style={{ color: 'green' }}>¡Tarea añadida!</p>}
+            <button onClick={removeAllItem}>Borrar todo</button>
+            <button onClick={resetItems}>Recargar todo</button>
+            <button onClick={() => removeItem(0)}>Borrar primero</button>
+            {renderItems()}
+          </>
+      }
     </div>
   );
 };
